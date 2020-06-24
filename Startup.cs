@@ -13,6 +13,10 @@ using Microsoft.Extensions.Hosting;
 using MyServices;
 using FunctionChallenge.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using React.AspNet;
+using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
+using JavaScriptEngineSwitcher.ChakraCore;
 
 namespace FunctionChallenge
 {
@@ -30,7 +34,9 @@ namespace FunctionChallenge
         {
             services.AddControllersWithViews();
             services.AddTransient<ViewToStringConverter>();
-
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddReact();
+            services.AddJsEngineSwitcher(options => options.DefaultEngineName = ChakraCoreJsEngine.EngineName).AddChakraCore();
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ChartDBContext>(options =>
                 options.UseSqlServer(connection));
@@ -49,8 +55,11 @@ namespace FunctionChallenge
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
+            app.UseReact(config => {
+
+            });
             app.UseStaticFiles();
+            app.UseHttpsRedirection();
             app.UseRouting();
 
             app.UseAuthorization();
@@ -59,7 +68,7 @@ namespace FunctionChallenge
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Main}/{id?}");
+                    pattern: "{controller=Home}/{action=ReactMain}/{id?}");
             });
         }
     }

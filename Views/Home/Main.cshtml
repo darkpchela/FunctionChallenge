@@ -1,131 +1,103 @@
 ﻿@model FunctionViewModel
 @{
-    //var xValues = Newtonsoft.Json.JsonConvert.SerializeObject(Model?.Select(x => x.x).ToList());
-    //var yValues = Newtonsoft.Json.JsonConvert.SerializeObject(Model?.Select(x => x.y).ToList());
-    ViewData["Title"] = "Line Chart";
+    ViewData["Title"] = "No react";
 }
-
-    <div class="box-body" style="position: absolute; left:0px; width:50%">
-        <div class="chart-container">
+<div class="box-body" style="position: absolute; left:0px; width:50%">
+    <div class="chart-container">
             <canvas id="chart" style="width:100%; height:500px"></canvas>
         </div>
-    </div>
-    <div style="width:50%; position:absolute; right:0px;">
+</div>
+<div style="width:50%; position:absolute; right:0px;">
+    <form id="form" asp-controller="Home" asp-action="Function">
+        <label for="function">
+            Function:
+        </label>
+        <div id="function">
+            <label>
+                y=
+            </label>
+            <input type="number" name="a" asp-for="a" />
+            <label>
+                x^2+
+            </label>
+            <input type="number" name="b" asp-for="b" />
+            <label>
+                x+
+            </label>
+            <input type="number" name="c" asp-for="c" />
+        </div>
+        <label for="step">
+            Step:
+        </label>
+        <div id="step">
+            <input type="number" name="step" asp-for="step" />
+        </div>
+        <label for="from">
+            From:
+        </label>
+        <div id="from">
+            <input type="number" name="from" asp-for="from" />
+            <span>to</span>
+            <input type="number" name="to" asp-for="to" />
+        </div>
+        <input type="hidden" value="@Model?.points" id="pointsJSON" />
+        <button id="btn" type="submit">Plot</button>
+        <div class="text-danger" asp-validation-summary="All"></div>
+    </form>
+</div>
 
-        <form id="form" asp-controller="Home" asp-action="Function">
-            <label for="function">
-                Function:
-            </label>
-            <div id="function">
-                <label>
-                    y=
-                </label>
-                <input type="number" name="a" asp-for="a" />
-                <label>
-                    x^2+
-                </label>
-                <input type="number" name="b" asp-for="b" />
-                <label>
-                    x+
-                </label>
-                <input type="number" name="c" asp-for="c" />
-            </div>
-            <label for="step">
-                Step:
-            </label>
-            <div  id="step">
-                <input type="number" name="step" asp-for="step" />
-            </div>
-            <label for="from">
-                From:
-            </label>
-            <div id="from">
-                <input type="number" name="from" asp-for="from" />
-                <span>to</span>
-                <input type="number" name="to" asp-for="to" />
-            </div>
-            <input type="hidden" value="@Model?.points" id="pointsJSON" />
-            <button id="btn" type="submit">Plot</button>
-            <div class="text-danger" asp-validation-summary="All"></div>
-        </form>
-    </div>
-@section Scripts{ 
-@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
-@*MyChartScript*@
-<script>
-    let myChartName = "chart";
-    let ctx = document.getElementById(myChartName);
-    let my_chart = new Chart(ctx,
-        {
-            type: "line",
-            data:
-            {
-                labelsp: [],
-                datasets:
-                    [{
-                        label: 'f(x)',
-                        data: [],
-                        borderColor: 'blue',
-                        borderWidth: 2,
-                        fill: false
-                    }]
-            },
-            options:
-            {
-                responsitive: true,
-                scales:
+@section Scripts{
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+    @*ChartScript*@
+    <script>
+            let myChartName = "chart";
+            let ctx = document.getElementById(myChartName);
+            let my_chart = new Chart(ctx,
                 {
-                    xAxes:
-                        [{
-                            display: true
-                        }],
-                    yAxes:
-                        [{
-                            display: true
-                        }]
-                }
-            }
-        });
-    $(function () {
-            let points = JSON.parse($("#pointsJSON").val());
-            my_chart.data.labels = [];
-            my_chart.data.datasets[0].data = [];
-            for (let i = 0; i < points.length; i++) {
-                my_chart.data.labels.push(points[i].x);
-                my_chart.data.datasets[0].data.push(points[i].y);
-            }
-            my_chart.update();
-            console.log('chart updated');
-        
-    });
-    
-    //$('#btn').click(function (e) {
-    //    e.preventDefault();
-    //    my_chart.data.labels = [];
-    //    my_chart.data.datasets[0].data = [];
-    //    let data = $('#form').serialize();
-    //    console.log(data);
-    //    $.ajax({
-    //        method: 'POST',
-    //        //dataType: 'html',
-    //        data: data,
-    //        url: '/Home/Function/',
-    //        success: function (response) {
-    //            console.log(response);
+                    type: "line",
+                    data:
+                    {
+                        labelsp: [],
+                        datasets:
+                            [{
+                                label: 'f(x)',
+                                data: [],
+                                borderColor: 'blue',
+                                borderWidth: 2,
+                                fill: false
+                            }]
+                    },
+                    options:
+                    {
+                        responsitive: true,
+                        scales:
+                        {
+                            xAxes:
+                                [{
+                                    display: true
+                                }],
+                            yAxes:
+                                [{
+                                    display: true
+                                }]
+                        }
+                    }
+                });
+            $(function () {
+                let points = JSON.parse($("#pointsJSON").val());
+                if (points !== null) {
 
-    //            let points = JSON.parse(response);
-    //            for (let i = 0; i < points.length; i++) {
-    //                my_chart.data.labels.push(points[i].x);
-    //                my_chart.data.datasets[0].data.push(points[i].y);
-    //            }
-    //            my_chart.update();
-    //            console.log('chart updated');
-    //        },
-    //        erorr: function (error) {
-    //            console.log(error);
-    //        }
-    //    });
-    //});
-</script>
+                my_chart.data.labels = [];
+                my_chart.data.datasets[0].data = [];
+                for (let i = 0; i < points.length; i++) {
+                    my_chart.data.labels.push(points[i].x);
+                    my_chart.data.datasets[0].data.push(points[i].y);
+                }
+                my_chart.update();
+                console.log('chart updated');
+                }
+
+            });
+        </script>
 }

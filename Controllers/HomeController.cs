@@ -69,6 +69,11 @@ namespace FunctionChallenge.Controllers
 
             return View("Main", functionView);
         }
+        [HttpGet]
+        public IActionResult ReactMain()
+        {
+            return View();
+        }
 
         [HttpPost]
         public IActionResult FunctionAjax(FunctionViewModel functionView)
@@ -88,7 +93,7 @@ namespace FunctionChallenge.Controllers
                     functionView.step, functionView.from, functionView.to);
                 return Json(points);
             }
-            return View("Main", functionView);
+            return null;
         }
 
         private  IEnumerable<Point> innerFunction(int a, int b, int c, int step,
