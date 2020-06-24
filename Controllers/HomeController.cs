@@ -11,13 +11,14 @@ using System.Text.Json;
 
 namespace FunctionChallenge.Controllers
 {
-    public class HomeController : Controller
-           
+    public class HomeController : Controller       
     {
         private readonly ViewToStringConverter viewToStringConverter;
+        private readonly ChartDBContext chartDB;
 
-        public HomeController(ViewToStringConverter viewToStringConverter)
+        public HomeController(ViewToStringConverter viewToStringConverter, ChartDBContext chartDB)
         {
+            this.chartDB = chartDB;
             this.viewToStringConverter = viewToStringConverter;
         }
 
@@ -47,6 +48,23 @@ namespace FunctionChallenge.Controllers
                 var points = innerFunction(functionView.a, functionView.b, functionView.c,
                     functionView.step, functionView.from, functionView.to);
                 functionView.points = JsonSerializer.Serialize(points);
+
+                UserData userData = new UserData {
+                    a = functionView.a,
+                    b=functionView.b,
+                    c=functionView.c,
+                    Step=functionView.step,
+                    RangeFrom = functionView.from,
+                    RangeTo=functionView.to
+                };
+                chartDB.UserDatas.Add(userData);
+                chartDB.SaveChanges();
+
+                foreach (var point in points)
+                {
+                    chartDB.Add(point.GetDBModel(userData));
+                }
+                chartDB.SaveChanges();
             }
 
             return View("Main", functionView);
@@ -73,13 +91,13 @@ namespace FunctionChallenge.Controllers
             return View("Main", functionView);
         }
 
-        private  IEnumerable<Point> innerFunction(double a, double b, double c, double step,
-            double from, double to)
+        private  IEnumerable<Point> innerFunction(int a, int b, int c, int step,
+            int from, int to)
         {
             List<Point> points = new List<Point>();
-            for (double x = from; x <= to; x+=step)
+            for (int x = from; x <= to; x+=step)
             {
-                double y = a * (Math.Pow(x, 2)) + (b * x) + c;
+                int y = a * ((int)Math.Pow(x, 2)) + (b * x) + c;
                 Point point = new Point(x, y);
                 points.Add(point);
             }
