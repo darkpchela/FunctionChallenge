@@ -22,7 +22,7 @@ class ChartWindow extends React.Component {
                     labelsp: [],
                     datasets:
                         [{
-                            label: 'f(x)',
+                            label: 'f(x) = aX^2 + bX + c',
                             data: [],
                             borderColor: 'blue',
                             borderWidth: 2,
@@ -81,24 +81,26 @@ class ChartInputForm extends React.Component {
     render() {
         return (
             <form id="form">
-                <label htmlFor="function">Function:</label>
-                <div id="function">
-                    <span>y=</span>
-                    <input type="number" name="a" defaultValue="5" />
-                    <span>x^2+</span>
-                    <input type="number" name="b" defaultValue="5" />
-                    <span>x+</span>
-                    <input type="number" name="c" defaultValue="16" />
-                </div>
-                <label htmlFor="step">Step:</label>
-                <div id="step">
-                    <input type="number" name="step" defaultValue="1" />
-                </div>
-                <label htmlFor="from">From:</label>
-                <div id="from">
-                    <input type="number" name="from" defaultValue="-10" />
-                    <span>to</span>
-                    <input type="number" name="to" defaultValue="10" />
+                <label className="title">Function: y = ax^2 + bx + c</label>
+                <div className="flex-row">
+                    <div>
+                        <label>a:</label> <input type="number" name="a" defaultValue="5" />
+                    </div>
+                    <div>
+                        <label>b:</label><input type="number" name="b" defaultValue="5" />
+                    </div>
+                    <div>
+                        <label>c:</label><input type="number" name="c" defaultValue="16" />
+                    </div>
+                    <div>
+                        <label>Step:</label><input type="number" name="step" defaultValue="1" />
+                    </div>
+                    <div>
+                        <label>From:</label> <input type="number" name="from" defaultValue="-10" />
+                    </div>
+                    <div>
+                        <label>To:</label><input type="number" name="to" defaultValue="10" />
+                    </div>
                 </div>
                 <button id="btn" type="submit" onClick={this.btnSubmitOnClick} >Plot</button>
             </form>

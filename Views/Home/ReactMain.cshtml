@@ -2,10 +2,12 @@
     ViewData["Title"] = "React";
 }
 
-<div id="chart-box">
-</div>
-<div id="input-box">
-</div>
+    <div class="app-container">
+        <div id="chart-box" class="chart-box">
+        </div>
+        <div id="input-box" class="chart-form">
+        </div>
+    </div>
 @section Scripts{
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
