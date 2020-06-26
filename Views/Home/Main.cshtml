@@ -1,11 +1,12 @@
 ﻿@model FunctionViewModel
 @{
     ViewData["Title"] = "No react";
+    ViewData["Front"] = "No React";
 }
 <div class="app-container">
-    <div class="chart-box">
+    <div id="chart-box" class="chart-box">
         <div class="chart-container">
-            <canvas id="chart" style="width:100%; height:500px"></canvas>
+            <canvas id="chart"></canvas>
         </div>
     </div>
     <div class="chart-form">
@@ -77,15 +78,17 @@
                 }
             });
         $(function () {
-            let points = JSON.parse($("#pointsJSON").val());
-            my_chart.data.labels = [];
-            my_chart.data.datasets[0].data = [];
-            for (let i = 0; i < points.length; i++) {
-                my_chart.data.labels.push(points[i].x);
-                my_chart.data.datasets[0].data.push(points[i].y);
+            if ($("#pointsJSON").val().length>0) {
+                let points = JSON.parse($("#pointsJSON").val()) ?? [];
+                my_chart.data.labels = [];
+                my_chart.data.datasets[0].data = [];
+                for (let i = 0; i < points.length; i++) {
+                    my_chart.data.labels.push(points[i].x);
+                    my_chart.data.datasets[0].data.push(points[i].y);
+                }
+                my_chart.update();
+                console.log('chart updated');
             }
-            my_chart.update();
-            console.log('chart updated');
 
         });
     </script>

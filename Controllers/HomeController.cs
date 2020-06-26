@@ -6,20 +6,17 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using FunctionChallenge.Models;
-using MyServices;
 using System.Text.Json;
 
 namespace FunctionChallenge.Controllers
 {
     public class HomeController : Controller       
     {
-        private readonly ViewToStringConverter viewToStringConverter;
         private readonly ChartDBContext chartDB;
 
-        public HomeController(ViewToStringConverter viewToStringConverter, ChartDBContext chartDB)
+        public HomeController(ChartDBContext chartDB)
         {
             this.chartDB = chartDB;
-            this.viewToStringConverter = viewToStringConverter;
         }
 
         [HttpGet]
@@ -45,30 +42,14 @@ namespace FunctionChallenge.Controllers
 
             if (ModelState.IsValid)
             {
-                var points = innerFunction(functionView.a, functionView.b, functionView.c,
-                    functionView.step, functionView.from, functionView.to);
+                var points = innerFunction(functionView.a, functionView.b, functionView.c, functionView.step, functionView.from, functionView.to);
+                AddDataToDB(functionView, points);
                 functionView.points = JsonSerializer.Serialize(points);
-
-                UserData userData = new UserData {
-                    a = functionView.a,
-                    b=functionView.b,
-                    c=functionView.c,
-                    Step=functionView.step,
-                    RangeFrom = functionView.from,
-                    RangeTo=functionView.to
-                };
-                chartDB.UserDatas.Add(userData);
-                chartDB.SaveChanges();
-
-                foreach (var point in points)
-                {
-                    chartDB.Add(point.GetDBModel(userData));
-                }
-                chartDB.SaveChanges();
             }
 
             return View("Main", functionView);
         }
+
         [HttpGet]
         public IActionResult ReactMain()
         {
@@ -91,6 +72,7 @@ namespace FunctionChallenge.Controllers
             {
                 var points = innerFunction(functionView.a, functionView.b, functionView.c,
                     functionView.step, functionView.from, functionView.to);
+                AddDataToDB(functionView, points);
                 return Json(points);
             }
             return null;
@@ -107,6 +89,26 @@ namespace FunctionChallenge.Controllers
                 points.Add(point);
             }
             return points;
+        }
+        private void AddDataToDB(FunctionViewModel functionView, IEnumerable<Point> points)
+        {
+            UserData userData = new UserData
+            {
+                a = functionView.a,
+                b = functionView.b,
+                c = functionView.c,
+                Step = functionView.step,
+                RangeFrom = functionView.from,
+                RangeTo = functionView.to
+            };
+            chartDB.UserDatas.Add(userData);
+            chartDB.SaveChanges();
+
+            foreach (var point in points)
+            {
+                chartDB.Add(point.GetDBModel(userData));
+            }
+            chartDB.SaveChanges();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

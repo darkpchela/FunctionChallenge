@@ -29,11 +29,6 @@ a {
 html {
   font-size: 14px;
 }
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
 
 .border-top {
   border-top: 1px solid #e5e5e5;
@@ -71,6 +66,7 @@ body {
   white-space: nowrap;
   line-height: 60px; /* Vertically center the text there */
 }
+
 /*MyStyle*/
 * {
   box-sizing: border-box;
@@ -96,6 +92,7 @@ body {
 .chart-box canvas{
   min-width: 250px;
   min-height: 250px;
+  max-height: 768px;
 }
 .chart-form{
   padding: 1%;
@@ -115,8 +112,7 @@ body {
   margin-bottom: 3%;
   width: 100%;
   text-align: center;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  font: bold italic large;
+  font: bold italic large Verdana;
 }
 .chart-form button{
   display: block;
@@ -141,7 +137,7 @@ body {
   display: inline-block;
   margin-left: 2px;
   max-width: 60px;
-  width: 10vmax;
+  width: 10vw;
 }
 
 @media (max-width: 1150px) {
@@ -149,7 +145,7 @@ body {
     width: 90vw;
   }
   .chart-form{
-    max-width: 90vw;
+    width: 90vw;
   }
 }
 @media (max-width: 800px){
@@ -158,6 +154,6 @@ body {
     height: 90vh;
   }
   .chart-form{
-    font-size: 3vmax;
+    font-size: 14px;
   }
 }
