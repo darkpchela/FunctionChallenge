@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace FunctionChallenge.Models
 {
-    public class PointDBModel
-    {
-        [Key]
-        public int PointId { get; set; }
-        public int ChartId { get; set; }
-        public int PointX { get; set; }
-        public int PointY { get; set; }
-    }
+    //public class PointDBModel
+    //{
+    //    [Key]
+    //    public int PointId { get; set; }
+    //    public int ChartId { get; set; }
+    //    public int PointX { get; set; }
+    //    public int PointY { get; set; }
+    //}
 }

@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using React.AspNet;
 using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using JavaScriptEngineSwitcher.ChakraCore;
+using FunctionChallenge.BusinessLayer.Extensions;
 
 namespace FunctionChallenge
 {
@@ -35,9 +36,7 @@ namespace FunctionChallenge
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddReact();
             services.AddJsEngineSwitcher(options => options.DefaultEngineName = ChakraCoreJsEngine.EngineName).AddChakraCore();
-            string connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<ChartDBContext>(options =>
-                options.UseSqlServer(connection));
+            services.AddBLDependencies(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

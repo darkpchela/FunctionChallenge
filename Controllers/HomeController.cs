@@ -7,28 +7,31 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using FunctionChallenge.Models;
 using System.Text.Json;
+using FunctionChallenge.BusinessLayer.Models;
+using FunctionChallenge.BusinessLayer.Interfaces;
+using AutoMapper;
 
 namespace FunctionChallenge.Controllers
 {
     public class HomeController : Controller       
     {
-        private readonly ChartDBContext chartDB;
+        private readonly IChartService chartService;
 
-        public HomeController(ChartDBContext chartDB)
+        public HomeController(IChartService chartService)
         {
-            this.chartDB = chartDB;
+            this.chartService = chartService;
         }
 
         [HttpGet]
         public IActionResult Main()
         {
-            return View(new FunctionViewModel() {
+            return View(new ChartViewModel() {
             a=5, b=5, c=16, step=1, from=-10, to=10
             });
         }
 
         [HttpPost]
-        public IActionResult Function(FunctionViewModel functionView)
+        public async Task<IActionResult> Function(ChartViewModel functionView)
         {
             if (functionView.to <= functionView.from)
             {
@@ -42,9 +45,11 @@ namespace FunctionChallenge.Controllers
 
             if (ModelState.IsValid)
             {
-                var points = innerFunction(functionView.a, functionView.b, functionView.c, functionView.step, functionView.from, functionView.to);
-                AddDataToDB(functionView, points);
-                functionView.points = JsonSerializer.Serialize(points);
+                var mapper = new MapperConfiguration(cfg=>cfg.CreateMap<ChartViewModel, ChartModel>().ReverseMap()).CreateMapper();
+                var model = mapper.Map<ChartViewModel, ChartModel>(functionView);
+                model = await chartService.GetPointsFor(model);
+                var resModel = mapper.Map<ChartModel, ChartViewModel>(model);
+                return View("Main", resModel);
             }
 
             return View("Main", functionView);
@@ -57,7 +62,7 @@ namespace FunctionChallenge.Controllers
         }
 
         [HttpPost]
-        public IActionResult FunctionAjax(FunctionViewModel functionView)
+        public IActionResult FunctionAjax(ChartModel functionView)
         {
             if (functionView.to <= functionView.from)
             {
@@ -70,46 +75,46 @@ namespace FunctionChallenge.Controllers
 
             if (ModelState.IsValid)
             {
-                var points = innerFunction(functionView.a, functionView.b, functionView.c,
-                    functionView.step, functionView.from, functionView.to);
-                AddDataToDB(functionView, points);
-                return Json(points);
+                //var points = innerFunction(functionView.a, functionView.b, functionView.c,
+                //    functionView.step, functionView.from, functionView.to);
+                //AddDataToDB(functionView, points);
+                //return Json(points);
             }
             return null;
         }
 
-        private  IEnumerable<Point> innerFunction(int a, int b, int c, int step,
-            int from, int to)
-        {
-            List<Point> points = new List<Point>();
-            for (int x = from; x <= to; x+=step)
-            {
-                int y = a * ((int)Math.Pow(x, 2)) + (b * x) + c;
-                Point point = new Point(x, y);
-                points.Add(point);
-            }
-            return points;
-        }
-        private void AddDataToDB(FunctionViewModel functionView, IEnumerable<Point> points)
-        {
-            UserData userData = new UserData
-            {
-                a = functionView.a,
-                b = functionView.b,
-                c = functionView.c,
-                Step = functionView.step,
-                RangeFrom = functionView.from,
-                RangeTo = functionView.to
-            };
-            chartDB.UserDatas.Add(userData);
-            chartDB.SaveChanges();
+        //private  IEnumerable<Point> innerFunction(int a, int b, int c, int step,
+        //    int from, int to)
+        //{
+        //    List<Point> points = new List<Point>();
+        //    for (int x = from; x <= to; x+=step)
+        //    {
+        //        int y = a * ((int)Math.Pow(x, 2)) + (b * x) + c;
+        //        Point point = new Point(x, y);
+        //        points.Add(point);
+        //    }
+        //    return points;
+        //}
+        //private void AddDataToDB(FunctionViewModel functionView, IEnumerable<Point> points)
+        //{
+        //    UserData userData = new UserData
+        //    {
+        //        a = functionView.a,
+        //        b = functionView.b,
+        //        c = functionView.c,
+        //        Step = functionView.step,
+        //        RangeFrom = functionView.from,
+        //        RangeTo = functionView.to
+        //    };
+        //    chartDB.UserDatas.Add(userData);
+        //    chartDB.SaveChanges();
 
-            foreach (var point in points)
-            {
-                chartDB.Add(point.GetDBModel(userData));
-            }
-            chartDB.SaveChanges();
-        }
+        //    foreach (var point in points)
+        //    {
+        //        chartDB.Add(point.GetDBModel(userData));
+        //    }
+        //    chartDB.SaveChanges();
+        //}
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
