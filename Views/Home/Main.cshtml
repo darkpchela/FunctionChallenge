@@ -31,10 +31,14 @@
                 <div>
                     <label>To:</label><input type="number" name="to" defaultValue="10" asp-for="to" />
                 </div>
+                <div>
+                    <label>Chart name:</label><input type="text" name="chartName" asp-for="chartName" />
+                </div>
             </div>
-            <input type="hidden" value="@Model?.points" id="pointsJSON" />
+            <input type="hidden" name="points" asp-for="points" id="pointsJSON" value="@Model?.points" />
             <button id="btn" type="submit">Plot</button>
             <div class="text-danger" asp-validation-summary="All"></div>
+            <button type="submit" asp-controller="Home" asp-action="Save">Save</button>
         </form>
     </div>
 </div>

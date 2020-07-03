@@ -7,9 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using FunctionChallenge.Models;
 using System.Text.Json;
-using FunctionChallenge.BusinessLayer.Models;
+using FunctionChallenge.BusinessLayer.DTO;
 using FunctionChallenge.BusinessLayer.Interfaces;
 using AutoMapper;
+using FunctionChallenge.BusinessLayer.Infrastructure;
 
 namespace FunctionChallenge.Controllers
 {
@@ -31,30 +32,41 @@ namespace FunctionChallenge.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Function(ChartViewModel functionView)
+        public async Task<IActionResult> Function(ChartViewModel chartViewModel)
         {
-            if (functionView.to <= functionView.from)
-            {
-                ModelState.AddModelError(nameof(functionView.to), "Value of 'to' must be greater then 'From'");
-            }
-
-            if (functionView.step >= (functionView.to - functionView.from))
-            {
-                ModelState.AddModelError(nameof(functionView.step), "Value of 'step' must be greater, then difference of 'from' and 'to'");
-            }
-
-            if (ModelState.IsValid)
+            try
             {
                 var mapper = new MapperConfiguration(cfg=>cfg.CreateMap<ChartViewModel, ChartModel>().ReverseMap()).CreateMapper();
-                var model = mapper.Map<ChartViewModel, ChartModel>(functionView);
-                model = await chartService.GetPointsFor(model);
+                var model = mapper.Map<ChartViewModel, ChartModel>(chartViewModel);
+                model = await chartService.GetPointsForAsync(model);
                 var resModel = mapper.Map<ChartModel, ChartViewModel>(model);
                 return View("Main", resModel);
             }
+            catch (CustomValidationException ex)
+            {
+                ModelState.AddModelError(ex.Property, ex.Message);
+                return View("Main", chartViewModel);
+            }
 
-            return View("Main", functionView);
         }
+        [HttpPost]
+        public async Task<IActionResult> Save(ChartViewModel chartViewModel)
+        {
+            try
+            {
+                var mapper = new MapperConfiguration(cfg => cfg.CreateMap<ChartViewModel, ChartModel>().ReverseMap()).CreateMapper();
+                var model = mapper.Map<ChartViewModel, ChartModel>(chartViewModel);
+                await chartService.SaveAsync(model);
+                return View("Main");
+            }
+            catch (CustomValidationException ex)
+            {
+                ModelState.AddModelError(ex.Property, ex.Message);
+                return View("Main", chartViewModel);
+            }
 
+        }
+        #region ReactVersion
         [HttpGet]
         public IActionResult ReactMain()
         {
@@ -115,7 +127,7 @@ namespace FunctionChallenge.Controllers
         //    }
         //    chartDB.SaveChanges();
         //}
-
+        #endregion
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

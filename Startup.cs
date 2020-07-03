@@ -65,7 +65,7 @@ namespace FunctionChallenge
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=ReactMain}/{id?}");
+                    pattern: "{controller=Home}/{action=Main}/{id?}");
             });
         }
     }
